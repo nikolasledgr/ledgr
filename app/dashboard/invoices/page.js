@@ -113,6 +113,18 @@ export default function Invoices() {
         amount: (parseFloat(item.quantity) || 1) * parseFloat(item.unit_price)
       }))
       await supabase.from('invoice_items').insert(itemsToInsert)
+
+      // Auto-create journal entries
+      await supabase.rpc('create_invoice_transaction', {
+        p_invoice_id: invoiceId,
+        p_user_id: user.id,
+        p_date: form.issued_date,
+        p_description: `Invoice to ${form.client.trim()}`,
+        p_subtotal: parseFloat(subtotal.toFixed(2)),
+        p_vat_amount: parseFloat(vatAmount.toFixed(2)),
+        p_total: parseFloat(total.toFixed(2))
+      })
+
       setInvoices([invData[0], ...invoices])
       resetForm()
     } catch (e) {
@@ -122,8 +134,25 @@ export default function Invoices() {
   }
 
   const updateStatus = async (id, status) => {
+    const prevInvoice = invoices.find(i => i.id === id)
     const { error } = await supabase.from('invoices').update({ status }).eq('id', id)
-    if (!error) setInvoices(invoices.map(i => i.id === id ? { ...i, status } : i))
+    if (!error) {
+      setInvoices(invoices.map(i => i.id === id ? { ...i, status } : i))
+      if (status === 'Paid' && prevInvoice?.status !== 'Paid') {
+        await supabase.rpc('record_invoice_payment', {
+          p_invoice_id: id,
+          p_user_id: user.id,
+          p_date: new Date().toISOString().split('T')[0],
+          p_amount: parseFloat(Number(prevInvoice.total || prevInvoice.amount || 0).toFixed(2))
+        })
+      }
+      if (status !== 'Paid' && prevInvoice?.status === 'Paid') {
+        await supabase.from('transactions')
+          .update({ status: 'void' })
+          .eq('invoice_id', id)
+          .eq('type', 'payment')
+      }
+    }
   }
 
   const deleteInvoice = async (id) => {

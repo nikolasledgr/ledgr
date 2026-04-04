@@ -89,6 +89,17 @@ export default function Expenses() {
       if (error) {
         alert('Failed to save: ' + error.message)
       } else {
+        // Auto-create journal entries
+        await supabase.rpc('create_expense_transaction', {
+          p_expense_id: data[0].id,
+          p_user_id: user.id,
+          p_date: form.date,
+          p_description: form.description.trim(),
+          p_category: form.category,
+          p_net_amount: parseFloat(netAmount.toFixed(2)),
+          p_vat_amount: parseFloat(vatAmount.toFixed(2)),
+          p_total: parseFloat(gross.toFixed(2))
+        })
         setExpenses([data[0], ...expenses])
         resetForm()
       }
