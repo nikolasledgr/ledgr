@@ -23,6 +23,8 @@ export default function DashboardLayout({ children }) {
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Invoices', href: '/dashboard/invoices' },
     { label: 'Expenses', href: '/dashboard/expenses' },
+    { label: 'Ledger', href: '/dashboard/ledger' },
+    { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts' },
     { label: 'P&L Report', href: '/dashboard/pl' },
     { label: 'Balance Sheet', href: '/dashboard/balance-sheet' },
     { label: 'Tax', href: '/dashboard/tax' },
