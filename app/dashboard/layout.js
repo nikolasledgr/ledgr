@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }) {
     { label: 'Expenses', href: '/dashboard/expenses' },
     { label: 'Ledger', href: '/dashboard/ledger' },
     { label: 'Templates', href: '/dashboard/templates' },
+    { label: 'Bank & Reconciliation', href: '/dashboard/bank' },
     { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts' },
     { label: 'P&L Report', href: '/dashboard/pl' },
     { label: 'Balance Sheet', href: '/dashboard/balance-sheet' },
